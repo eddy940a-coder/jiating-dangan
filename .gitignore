@@ -1,0 +1,65 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# VSCode related
+.vscode/
+
+# Flutter repo-specific
+/flutter/
+/flutter_*.png
+/flutter_export.log
+/flutter_export_environment.*
+
+# Flutter 工具生成
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Android
+/android/build/
+/android/local.properties
+/android/app/local.properties
+/android/.gradle/
+/android/captures/
+/android/gradlew
+/android/gradlew.bat
+/android/**/GeneratedPluginRegistrant.java
+
+# iOS/Xcode
+/ios/Flutter/Generated.xcconfig
+/ios/Flutter/ephemeral/
+/ios/Runner/GeneratedPluginRegistrant.*
+/ios/Pods/
+/ios/.symlinks/
+**/xcuserdata/
+
+# Build output
+/build/
+/.dart_tool/
+/.packages
+/.pub-cache/
+/.pub/
+/pubspec.lock
+*.iml
+*.err
+
+# 编辑器 / 工具私有目录
+.workbuddy/
+
+# 备份文件
+*.bak
+*.bak2

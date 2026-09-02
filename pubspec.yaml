@@ -1,0 +1,58 @@
+name: family_archive
+description: 家庭档案 - 纯本地家庭隐私记录工具（成员 / 保单 / 病历 / 家庭大事件 / 紧急医疗卡）
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # ---------- 基础 ----------
+  cupertino_icons: ^1.0.8
+  intl: ^0.19.0
+  path: ^1.9.0
+  path_provider: ^2.1.4
+  provider: ^6.1.2
+
+  # ---------- 本地数据库 ----------
+  sqflite: ^2.3.3
+
+  # ---------- 本地通知（离线，无后端） ----------
+  flutter_local_notifications: ^17.2.2
+  # 本地时区通过 Dart 标准库 DateTime.timeZoneOffset 计算，
+  # 不引入 flutter_native_timezone（该包已停止维护且不支持 AGP 9 的 namespace 要求）
+  timezone: ^0.9.4
+
+  # ---------- 生物识别（指纹 / 面容，系统能力） ----------
+  local_auth: ^2.2.0
+
+  # ---------- 附件 / 文件 ----------
+  file_picker: ^11.0.3
+  open_filex: ^4.5.0
+
+  # ---------- 保存紧急医疗卡到相册 ----------
+  image_gallery_saver_plus: ^5.1.1
+  permission_handler: ^11.3.1
+
+  # ---------- 备份：zip 打包 + AES 加密 ----------
+  archive: ^3.6.1
+  crypto: ^3.0.5
+  encrypt: ^5.0.3
+
+  # ---------- Excel 导出 ----------
+  excel: ^4.0.0
+
+  # ---------- 导出文件分享（用户主动触发，非网络上传） ----------
+  share_plus: ^10.1.2
+  cross_file: ^0.3.4+2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
