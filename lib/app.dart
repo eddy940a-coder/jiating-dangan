@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
 import 'pages/lock/lock_page.dart';
@@ -28,6 +29,36 @@ class _Root extends StatefulWidget {
   State<_Root> createState() => _RootState();
 }
 
+/// 统一的 MaterialApp 壳：固定中文 locale，使系统日期选择器、对话框等
+/// 全部显示中文。
+class _App extends StatelessWidget {
+  const _App({required this.home});
+
+  final Widget home;
+
+  @override
+  Widget build(BuildContext context) {
+    final settings = context.watch<AppSettingsProvider>();
+
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: '家庭档案',
+      theme: AppTheme.build(settings.fontLevel),
+      // 强制中文，日历、日期选择器等系统组件会显示"2026年 9月"、"星期三"等。
+      locale: const Locale('zh', 'CN'),
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('zh', 'CN'),
+      ],
+      home: home,
+    );
+  }
+}
+
 class _RootState extends State<_Root> {
   bool _splashDone = false;
   bool _unlocked = false;
@@ -36,17 +67,11 @@ class _RootState extends State<_Root> {
   Widget build(BuildContext context) {
     final settings = context.watch<AppSettingsProvider>();
 
-    if (!_splashDone) {
-      return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.build(settings.fontLevel),
-        home: SplashPage(onFinish: () => setState(() => _splashDone = true)),
-      );
-    }
-
     // 未解锁前不加载任何业务数据
     final Widget body;
-    if (!settings.hasPassword) {
+    if (!_splashDone) {
+      body = SplashPage(onFinish: () => setState(() => _splashDone = true));
+    } else if (!settings.hasPassword) {
       body = const SetPasswordPage();
     } else if (settings.lockEnabled && !_unlocked) {
       body = LockPage(onUnlocked: () => setState(() => _unlocked = true));
@@ -54,15 +79,8 @@ class _RootState extends State<_Root> {
       body = const MainPage();
     }
 
-    // 业务 Provider 必须位于 Navigator 之上，否则所有 push 出来的页面
-    // （新增保单 / 新增病历 / 新增事件…）都读不到数据而红屏。
     return BusinessProviders(
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: '家庭档案',
-        theme: AppTheme.build(settings.fontLevel),
-        home: body,
-      ),
+      child: _App(home: body),
     );
   }
 }
