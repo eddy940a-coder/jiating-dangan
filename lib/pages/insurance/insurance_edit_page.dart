@@ -169,6 +169,7 @@ class _InsuranceEditPageState extends State<InsuranceEditPage> {
                 .toList(),
             onChanged: (v) => setState(() => _memberId = v),
           ),
+          if (members.isEmpty) const NoMemberHint(),
           FormDropdown<String>(
             label: '保险类型',
             required: true,

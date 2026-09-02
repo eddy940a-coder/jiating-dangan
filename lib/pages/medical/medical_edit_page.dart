@@ -167,6 +167,7 @@ class _MedicalEditPageState extends State<MedicalEditPage> {
                 .toList(),
             onChanged: (v) => setState(() => _memberId = v),
           ),
+          if (members.isEmpty) const NoMemberHint(),
           LabeledField(
             label: '就诊时间',
             required: true,

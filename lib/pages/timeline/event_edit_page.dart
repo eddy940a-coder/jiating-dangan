@@ -95,6 +95,10 @@ class _EventEditPageState extends State<EventEditPage> {
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
         children: [
           const SectionTitleInline('关联成员（可多选）'),
+          if (members.isEmpty)
+            const NoMemberHint(
+              text: '还没有家庭成员，可先到「首页 → 家庭成员」添加；事件也可以暂不关联成员。',
+            ),
           Wrap(
             spacing: 8,
             runSpacing: 8,

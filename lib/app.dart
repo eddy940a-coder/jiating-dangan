@@ -5,6 +5,7 @@ import 'pages/lock/lock_page.dart';
 import 'pages/lock/set_password_page.dart';
 import 'pages/main/main_page.dart';
 import 'pages/splash/splash_page.dart';
+import 'providers/app_providers.dart';
 import 'providers/app_settings_provider.dart';
 import 'theme/app_theme.dart';
 
@@ -53,11 +54,15 @@ class _RootState extends State<_Root> {
       body = const MainPage();
     }
 
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: '家庭档案',
-      theme: AppTheme.build(settings.fontLevel),
-      home: body,
+    // 业务 Provider 必须位于 Navigator 之上，否则所有 push 出来的页面
+    // （新增保单 / 新增病历 / 新增事件…）都读不到数据而红屏。
+    return BusinessProviders(
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: '家庭档案',
+        theme: AppTheme.build(settings.fontLevel),
+        home: body,
+      ),
     );
   }
 }

@@ -77,15 +77,55 @@ class FormDropdown<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 候选项为空、或 value 已不在候选项中时，DropdownButtonFormField 会直接
+    // 断言失败导致页面红屏，这里回退成 null，保证页面仍能正常打开。
+    final effectiveValue = items.any((item) => item.value == value) ? value : null;
     return LabeledField(
       label: label,
       required: required,
       child: DropdownButtonFormField<T>(
-        value: value,
+        // Flutter 3.33 起 `value` 已废弃，改用 initialValue；
+        // 组件在 initialValue 变化时会自动 setValue，外部 setState 同样生效。
+        initialValue: effectiveValue,
         isExpanded: true,
-        decoration: const InputDecoration(hintText: '请选择'),
+        decoration: InputDecoration(hintText: hint),
         items: items,
         onChanged: onChanged,
+      ),
+    );
+  }
+}
+
+/// 还没有家庭成员时的引导提示，避免用户面对一个空下拉框不知所措。
+class NoMemberHint extends StatelessWidget {
+  const NoMemberHint({
+    super.key,
+    this.text = '还没有家庭成员，请先到「首页 → 家庭成员」添加成员后再录入。',
+  });
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(top: 4, bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.info_outline, size: 16, color: AppColors.primary),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                  fontSize: 12, color: AppColors.textSecondary),
+            ),
+          ),
+        ],
       ),
     );
   }
