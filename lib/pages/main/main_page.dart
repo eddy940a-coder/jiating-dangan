@@ -7,9 +7,30 @@ import '../../providers/medical_provider.dart';
 import '../../providers/member_provider.dart';
 import '../../providers/tab_index_provider.dart';
 import '../home/home_page.dart';
-import '../insurance/insurance_list_page.dart';
-import '../medical/medical_list_page.dart';
+import '../member/member_list_page.dart';
+import '../settings/settings_page.dart';
 import '../timeline/timeline_page.dart';
+
+/// 底部导航入口。保险 / 病历不再单独占 tab，改由首页功能区进入，
+/// 避免与首页入口重复造成层级混乱。
+const List<BottomNavigationBarItem> mainNavItems = <BottomNavigationBarItem>[
+  BottomNavigationBarItem(
+      icon: Icon(Icons.home_outlined),
+      activeIcon: Icon(Icons.home),
+      label: '首页'),
+  BottomNavigationBarItem(
+      icon: Icon(Icons.family_restroom_outlined),
+      activeIcon: Icon(Icons.family_restroom),
+      label: '家庭档案'),
+  BottomNavigationBarItem(
+      icon: Icon(Icons.timeline_outlined),
+      activeIcon: Icon(Icons.timeline),
+      label: '时间线'),
+  BottomNavigationBarItem(
+      icon: Icon(Icons.person_outline),
+      activeIcon: Icon(Icons.person),
+      label: '我的'),
+];
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -19,11 +40,13 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  // 保险 / 病历不再单独占一个底部入口，改为首页功能区进入，
+  // 避免与首页入口重复造成层级混乱。
   late final List<Widget> _pages = <Widget>[
     const HomePage(),
-    const InsuranceListPage(),
-    const MedicalListPage(),
+    const MemberListPage(),
     const TimelinePage(),
+    const SettingsPage(),
   ];
 
   @override
@@ -58,24 +81,7 @@ class _MainPageState extends State<MainPage> {
           bottomNavigationBar: BottomNavigationBar(
             currentIndex: tab.index,
             onTap: tab.set,
-            items: const [
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.home_outlined),
-                  activeIcon: Icon(Icons.home),
-                  label: '首页'),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.shield_outlined),
-                  activeIcon: Icon(Icons.shield),
-                  label: '保险'),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.medical_services_outlined),
-                  activeIcon: Icon(Icons.medical_services),
-                  label: '病历'),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.timeline_outlined),
-                  activeIcon: Icon(Icons.timeline),
-                  label: '时间线'),
-            ],
+            items: mainNavItems,
           ),
         );
       },

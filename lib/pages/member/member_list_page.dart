@@ -19,7 +19,7 @@ class MemberListPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('家庭成员'),
+        title: const Text('家庭档案'),
       ),
       body: Consumer<MemberProvider>(
         builder: (context, p, _) {

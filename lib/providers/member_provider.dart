@@ -33,6 +33,14 @@ class MemberProvider extends ChangeNotifier {
     await load();
   }
 
+  /// 切换成员档案的隐藏状态（首页卡片一键显示 / 隐藏）。
+  Future<void> setHidden(String id, bool hidden) async {
+    final m = byId(id);
+    if (m == null || m.hidden == hidden) return;
+    await _repo.upsert(m.copyWith(hidden: hidden));
+    await load();
+  }
+
   Future<void> delete(String id) async {
     await _repo.delete(id);
     await load();

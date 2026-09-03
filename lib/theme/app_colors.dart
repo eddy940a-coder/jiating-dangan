@@ -35,4 +35,10 @@ class AppColors {
   static const Color eventInsurance = primary;
   static const Color eventMedical = red;
   static const Color eventManual = yellow;
+
+  /// 首页功能入口配色（降低饱和度，避免过于跳眼；紧急医疗卡例外，
+  /// 应急场景需要醒目的红）
+  static const Color fnInsurance = Color(0xFF5B76C4);
+  static const Color fnMedical = Color(0xFFC97B7B);
+  static const Color fnEvent = Color(0xFFC9A227);
 }
