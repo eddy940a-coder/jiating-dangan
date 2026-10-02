@@ -194,36 +194,62 @@ class _Reminders extends StatelessWidget {
     }
 
     for (final r in medicals) {
-      if (!r.revisitRemind || r.revisitTime == null) continue;
-      final d = DateUtil.daysUntil(r.revisitTime!);
-      if (d < 0) {
-        items.add(_ReminderItem(
-          days: d,
-          icon: Icons.medical_services_outlined,
-          color: AppColors.red,
-          title: '复诊已逾期 · ${r.visitType}',
-          subtitle:
-              '${_name(r.memberId)} · ${r.hospital.isEmpty ? "复诊" : r.hospital}',
-          timeText: '逾期 ${-d} 天',
-          onTap: () => Navigator.of(context).push(
+      final toDetail = () => Navigator.of(context).push(
             MaterialPageRoute<void>(
                 builder: (_) => MedicalDetailPage(record: r)),
-          ),
-        ));
-      } else if (d <= 7) {
-        items.add(_ReminderItem(
-          days: d,
-          icon: Icons.medical_services_outlined,
-          color: AppColors.orange,
-          title: '复诊提醒 · ${r.visitType}',
-          subtitle:
-              '${_name(r.memberId)} · ${r.hospital.isEmpty ? "复诊" : r.hospital}',
-          timeText: d == 0 ? '今日复诊' : '$d 天后',
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute<void>(
-                builder: (_) => MedicalDetailPage(record: r)),
-          ),
-        ));
+          );
+
+      if (r.revisitRemind && r.revisitTime != null) {
+        final d = DateUtil.daysUntil(r.revisitTime!);
+        if (d < 0) {
+          items.add(_ReminderItem(
+            days: d,
+            icon: Icons.medical_services_outlined,
+            color: AppColors.red,
+            title: '复诊已逾期 · ${r.visitType}',
+            subtitle:
+                '${_name(r.memberId)} · ${r.hospital.isEmpty ? "复诊" : r.hospital}',
+            timeText: '逾期 ${-d} 天',
+            onTap: toDetail,
+          ));
+        } else if (d <= 7) {
+          items.add(_ReminderItem(
+            days: d,
+            icon: Icons.medical_services_outlined,
+            color: AppColors.orange,
+            title: '复诊提醒 · ${r.visitType}',
+            subtitle:
+                '${_name(r.memberId)} · ${r.hospital.isEmpty ? "复诊" : r.hospital}',
+            timeText: d == 0 ? '今日复诊' : '$d 天后',
+            onTap: toDetail,
+          ));
+        }
+      }
+
+      // 体检是一年一次，提前 30 天开始提醒
+      if (r.checkupRemind && r.nextCheckupDate != null) {
+        final d = DateUtil.daysUntil(r.nextCheckupDate!);
+        if (d < 0) {
+          items.add(_ReminderItem(
+            days: d,
+            icon: Icons.monitor_heart_outlined,
+            color: AppColors.red,
+            title: '体检已逾期',
+            subtitle: '${_name(r.memberId)} · 距计划体检日已过 ${-d} 天',
+            timeText: '逾期 ${-d} 天',
+            onTap: toDetail,
+          ));
+        } else if (d <= 30) {
+          items.add(_ReminderItem(
+            days: d,
+            icon: Icons.monitor_heart_outlined,
+            color: AppColors.orange,
+            title: '体检提醒',
+            subtitle: '${_name(r.memberId)} · 一年一度的体检时间到了',
+            timeText: d == 0 ? '今日体检' : '$d 天后',
+            onTap: toDetail,
+          ));
+        }
       }
     }
 

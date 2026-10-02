@@ -57,10 +57,12 @@ class RecordSyncService {
     );
     await _events.upsert(event);
     await _notify.scheduleRevisitReminders(r);
+    await _notify.scheduleCheckupReminders(r);
   }
 
   Future<void> afterDeleteMedical(String medicalId) async {
     await _events.deleteByRelatedId(medicalId);
     await _notify.cancelRevisitReminders(medicalId);
+    await _notify.cancelCheckupReminders(medicalId);
   }
 }

@@ -21,6 +21,12 @@
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28"/>
 
+    <!-- 拍照识别单据：部分 ROM 在调用相机时需要声明 -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false"/>
+
     <application
         android:label="家庭档案"
         android:name="${applicationName}"
@@ -48,6 +54,12 @@
             android:name="flutterEmbedding"
             android:value="2"/>
 
+        <!-- 拍照识别（OCR）：声明中文识别模型，随 Google Play 服务预下载，
+             避免用户第一次识别时长时间等待。识别在设备端完成，不上传图片。 -->
+        <meta-data
+            android:name="com.google.mlkit.vision.DEPENDENCIES"
+            android:value="ocr_chinese"/>
+
         <!-- 通知点击事件（可空） -->
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"/>
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
@@ -64,6 +76,14 @@
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
+        </intent>
+        <!-- Android 11+ 包可见性：调用系统相机与相册 -->
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.GET_CONTENT"/>
+            <data android:mimeType="image/*"/>
         </intent>
     </queries>
 </manifest>

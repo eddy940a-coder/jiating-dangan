@@ -149,6 +149,38 @@ class NotificationService {
     await _plugin.cancel(base + 1);
   }
 
+  /// 体检提醒：体检前 7 天晚 20:00 + 当天早 08:00
+  ///
+  /// 通知 id 在复诊的基础上偏移 2，避免同一条病历的两种提醒互相覆盖。
+  Future<void> scheduleCheckupReminders(MedicalRecord r) async {
+    if (!r.checkupRemind || r.nextCheckupDate == null) {
+      await cancelCheckupReminders(r.id);
+      return;
+    }
+    final base = IdUtil.intId('med_${r.id}') + 2;
+    final body = '计划体检日：${DateUtil.ymd(r.nextCheckupDate)}';
+
+    await _scheduleAt(
+      id: base,
+      when: DateUtil.at(r.nextCheckupDate!, 8, 0),
+      title: '今日体检提醒',
+      body: body,
+    );
+    final daysBefore = r.nextCheckupDate!.subtract(const Duration(days: 7));
+    await _scheduleAt(
+      id: base + 1,
+      when: DateUtil.at(daysBefore, 20, 0),
+      title: '体检提醒：还有 7 天',
+      body: body,
+    );
+  }
+
+  Future<void> cancelCheckupReminders(String medicalId) async {
+    final base = IdUtil.intId('med_$medicalId') + 2;
+    await _plugin.cancel(base);
+    await _plugin.cancel(base + 1);
+  }
+
   Future<void> cancelAll() => _plugin.cancelAll();
 
   // ---------- 内部 ----------

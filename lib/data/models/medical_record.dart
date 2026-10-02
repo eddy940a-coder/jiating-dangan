@@ -18,11 +18,16 @@ class MedicalRecord {
     this.medication = '',
     this.revisitTime,
     this.revisitRemind = false,
+    this.nextCheckupDate,
+    this.checkupRemind = false,
     this.attachments = const <String>[],
     this.remark = '',
     required this.createdAt,
     required this.updatedAt,
   });
+
+  /// 是否是体检记录
+  bool get isCheckup => visitType == '体检';
 
   final String id;
   String memberId;
@@ -36,6 +41,9 @@ class MedicalRecord {
   String medication;
   DateTime? revisitTime;
   bool revisitRemind;
+  /// 下次体检日期（体检记录专用），用于生成次年的体检提醒
+  DateTime? nextCheckupDate;
+  bool checkupRemind;
   List<String> attachments;
   String remark;
   final DateTime createdAt;
@@ -54,6 +62,9 @@ class MedicalRecord {
     DateTime? revisitTime,
     bool clearRevisitTime = false,
     bool? revisitRemind,
+    DateTime? nextCheckupDate,
+    bool clearNextCheckupDate = false,
+    bool? checkupRemind,
     List<String>? attachments,
     String? remark,
     DateTime? updatedAt,
@@ -71,6 +82,10 @@ class MedicalRecord {
       medication: medication ?? this.medication,
       revisitTime: clearRevisitTime ? null : (revisitTime ?? this.revisitTime),
       revisitRemind: revisitRemind ?? this.revisitRemind,
+      nextCheckupDate: clearNextCheckupDate
+          ? null
+          : (nextCheckupDate ?? this.nextCheckupDate),
+      checkupRemind: checkupRemind ?? this.checkupRemind,
       attachments: attachments ?? this.attachments,
       remark: remark ?? this.remark,
       createdAt: createdAt,
@@ -91,6 +106,8 @@ class MedicalRecord {
         'medication': medication,
         'revisit_time': DateUtil.toTs(revisitTime),
         'revisit_remind': revisitRemind ? 1 : 0,
+        'next_checkup_date': DateUtil.toTs(nextCheckupDate),
+        'checkup_remind': checkupRemind ? 1 : 0,
         'attachments': jsonEncode(attachments),
         'remark': remark,
         'created_at': createdAt.millisecondsSinceEpoch,
@@ -122,6 +139,8 @@ class MedicalRecord {
       medication: (m['medication'] as String?) ?? '',
       revisitTime: DateUtil.fromTs(m['revisit_time'] as int?),
       revisitRemind: ((m['revisit_remind'] as int?) ?? 0) == 1,
+      nextCheckupDate: DateUtil.fromTs(m['next_checkup_date'] as int?),
+      checkupRemind: ((m['checkup_remind'] as int?) ?? 0) == 1,
       attachments: atts,
       remark: (m['remark'] as String?) ?? '',
       createdAt: DateTime.fromMillisecondsSinceEpoch(m['created_at'] as int),

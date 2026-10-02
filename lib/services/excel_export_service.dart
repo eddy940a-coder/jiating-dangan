@@ -150,6 +150,8 @@ class ExcelExportService {
       _s('用药记录'),
       _s('复诊时间'),
       _s('复诊提醒'),
+      _s('下次体检日期'),
+      _s('体检提醒'),
       _s('备注'),
     ]);
     for (final r in rs) {
@@ -165,6 +167,8 @@ class ExcelExportService {
         _s(r.medication),
         _s(DateUtil.ymd(r.revisitTime)),
         _s(r.revisitRemind ? '开启' : '关闭'),
+        _s(DateUtil.ymd(r.nextCheckupDate)),
+        _s(r.checkupRemind ? '开启' : '关闭'),
         _s(r.remark),
       ]);
     }

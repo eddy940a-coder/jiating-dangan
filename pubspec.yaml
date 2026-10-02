@@ -51,6 +51,13 @@ dependencies:
   share_plus: ^10.1.2
   cross_file: ^0.3.4+2
 
+  # ---------- PDF 导出（紧急医疗卡等） ----------
+  pdf: ^3.11.3
+
+  # ---------- 拍照 OCR（本地识别，不上传） ----------
+  google_mlkit_text_recognition: ^0.15.0
+  image_picker: ^1.1.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -58,3 +65,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    # PDF 导出需要自带中文字体（pdf 包只支持 TrueType/glyf 轮廓，思源黑体是
+    # CFF 轮廓会渲染失败）。当前用等线(正文)+黑体(标题)做验证；如需合规分发，
+    # 请替换为 OFL/开源授权的 TrueType 中文字体并改这两行与 pdf_export_service.dart。
+    - assets/fonts/EnRegular.ttf
+    - assets/fonts/EnBold.ttf

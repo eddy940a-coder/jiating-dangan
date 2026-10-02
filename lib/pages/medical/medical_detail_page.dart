@@ -152,6 +152,16 @@ class _MedicalDetailPageState extends State<MedicalDetailPage> {
               ],
             ),
           ],
+          if (_item.nextCheckupDate != null) ...[
+            const SizedBox(height: 12),
+            _Section(
+              title: '下次体检',
+              children: [
+                _kv('计划日期', DateUtil.ymd(_item.nextCheckupDate)),
+                _kv('体检提醒', _item.checkupRemind ? '开启' : '关闭'),
+              ],
+            ),
+          ],
           if (_item.attachments.isNotEmpty) ...[
             const SizedBox(height: 12),
             _Section(

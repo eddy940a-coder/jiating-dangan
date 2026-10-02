@@ -2,16 +2,19 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
+import 'package:cross_file/cross_file.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../data/models/family_member.dart';
 import '../../data/models/insurance.dart';
 import '../../providers/insurance_provider.dart';
 import '../../providers/member_provider.dart';
+import '../../services/pdf_export_service.dart';
 import '../../theme/app_colors.dart';
 import '../../utils/date_util.dart';
 import '../../widgets/app_card.dart';
@@ -29,6 +32,7 @@ class _EmergencyCardPageState extends State<EmergencyCardPage> {
   String? _memberId;
   final GlobalKey _cardKey = GlobalKey();
   bool _saving = false;
+  bool _exporting = false;
 
   FamilyMember? get _member {
     if (_memberId == null) return null;
@@ -85,10 +89,42 @@ class _EmergencyCardPageState extends State<EmergencyCardPage> {
     }
   }
 
+  /// 导出结构化 PDF，用于打印或发给医生（文字可复制、可搜索）
+  Future<void> _exportPdf() async {
+    if (_exporting) return;
+    final member = _member;
+    if (member == null) return;
+    setState(() => _exporting = true);
+    try {
+      final path = await PdfExportService.instance.exportEmergencyCard(
+        member: member,
+        insurances: _validInsurances(member.id),
+      );
+      if (!mounted) return;
+      await Share.shareXFiles(
+        [XFile(path)],
+        text: '紧急医疗卡 - ${member.name}',
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('PDF 导出失败：$e')),
+      );
+    } finally {
+      if (mounted) setState(() => _exporting = false);
+    }
+  }
+
+  List<Insurance> _validInsurances(String memberId) {
+    final insurances = context.read<InsuranceProvider>().all;
+    return insurances
+        .where((i) => i.memberId == memberId && i.status != '已失效')
+        .toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     final members = context.watch<MemberProvider>().all;
-    final insurances = context.watch<InsuranceProvider>().all;
 
     if (members.isEmpty) {
       return Scaffold(
@@ -110,9 +146,7 @@ class _EmergencyCardPageState extends State<EmergencyCardPage> {
       });
     }
 
-    final validInsurances = insurances
-        .where((i) => i.memberId == member.id && i.status != '已失效')
-        .toList();
+    final validInsurances = _validInsurances(member.id);
 
     return Scaffold(
       appBar: AppBar(
@@ -168,9 +202,21 @@ class _EmergencyCardPageState extends State<EmergencyCardPage> {
             icon: const Icon(Icons.image_outlined),
             label: const Text('一键保存为图片到相册'),
           ),
+          const SizedBox(height: 10),
+          OutlinedButton.icon(
+            onPressed: _exporting ? null : _exportPdf,
+            icon: _exporting
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.picture_as_pdf_outlined),
+            label: const Text('导出 PDF（可打印 / 分享）'),
+          ),
           const SizedBox(height: 8),
           const Text(
-            '保存后可设为锁屏壁纸或发送给医生。\n本卡为纯本地生成，不会上传任何信息。',
+            '图片可设为锁屏壁纸；PDF 里的文字可复制、可搜索，适合打印或发给医生。\n本卡为纯本地生成，不会上传任何信息。',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 12,

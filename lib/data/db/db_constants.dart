@@ -2,7 +2,10 @@
 class DbConstants {
   DbConstants._();
 
-  static const int version = 1;
+  /// 版本历史：
+  /// - 1：初始版本（成员 / 保单 / 病历 / 事件 / 设置）
+  /// - 2：病历表增加体检字段（next_checkup_date、checkup_remind）
+  static const int version = 2;
 
   // 4 张核心业务表
   static const String tableMember = 'family_member';

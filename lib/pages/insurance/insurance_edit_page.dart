@@ -3,13 +3,16 @@ import 'package:provider/provider.dart';
 
 import '../../data/models/family_member.dart';
 import '../../data/models/insurance.dart';
+import '../../pages/ocr/ocr_review_page.dart';
 import '../../providers/insurance_provider.dart';
 import '../../providers/member_provider.dart';
+import '../../services/ocr_parser.dart';
 import '../../theme/app_colors.dart';
 import '../../utils/date_util.dart';
 import '../../utils/id_util.dart';
 import '../../widgets/attachment_field.dart';
 import '../../widgets/form_widgets.dart';
+import '../../widgets/scan_banner.dart';
 
 class InsuranceEditPage extends StatefulWidget {
   const InsuranceEditPage({super.key, this.insurance, this.memberId});
@@ -141,6 +144,51 @@ class _InsuranceEditPageState extends State<InsuranceEditPage> {
     if (mounted) Navigator.of(context).pop(true);
   }
 
+  /// 拍照 / 选图识别保单，核对后填入表单（不直接落库）
+  Future<void> _scanPolicy() async {
+    final fields = await OcrScan.run(context, OcrTarget.insurance);
+    if (fields == null || !mounted) return;
+    setState(() {
+      _company.text = fields['company'] ?? _company.text;
+      _policyNo.text = fields['policyNo'] ?? _policyNo.text;
+      _holder.text = fields['holder'] ?? _holder.text;
+      _insured.text = fields['insured'] ?? _insured.text;
+      _beneficiary.text = fields['beneficiary'] ?? _beneficiary.text;
+      _premium.text = fields['premium'] ?? _premium.text;
+
+      final matchedType = OcrParser.matchInsuranceType(fields['type']);
+      if (matchedType != null) _type = matchedType;
+
+      final eff = _parseDate(fields['effectiveDate']);
+      if (eff != null) _effectiveDate = eff;
+      final exp = _parseDate(fields['expireDate']);
+      if (exp != null) {
+        _expireDate = exp;
+        // 识别到到期日就顺手打开续保提醒
+        _remind = true;
+      }
+    });
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('已填入识别结果，请核对后再保存')),
+    );
+  }
+
+  static DateTime? _parseDate(String? s) {
+    if (s == null) return null;
+    final m = RegExp(r'^(\d{4})-(\d{1,2})-(\d{1,2})').firstMatch(s.trim());
+    if (m == null) return null;
+    final y = int.tryParse(m.group(1)!);
+    final mo = int.tryParse(m.group(2)!);
+    final d = int.tryParse(m.group(3)!);
+    if (y == null || mo == null || d == null) return null;
+    try {
+      return DateTime(y, mo, d);
+    } catch (_) {
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final members = context.watch<MemberProvider>().all;
@@ -155,6 +203,10 @@ class _InsuranceEditPageState extends State<InsuranceEditPage> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
         children: [
+          ScanBanner(
+            text: '拍照 / 选图识别保单，自动填入公司、保单号与到期日',
+            onTap: _scanPolicy,
+          ),
           FormDropdown<String>(
             label: '归属成员',
             required: true,
